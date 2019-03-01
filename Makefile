@@ -4,7 +4,7 @@ CXX = $(CROSS)g++
 OBJCOPY = $(CROSS)objcopy
 NRFUTIL = adafruit-nrfutil
 
-COMFLAGS = -DFLOAT_ABI_HARD \
+COMFLAGS = -DARDUINO=100 -DFLOAT_ABI_HARD \
 	-DNRF52 -DNRF52832_XXAA -DS132 \
 	-Wno-register
 
@@ -40,6 +40,7 @@ CSRC = $(wildcard $(ARDUINO)/cores/nRF5/freertos/Source/*.c) \
 	$(ARDUINO)/libraries/Bluefruit52Lib/src/utility/bootloader_util.c
 
 CXXSRC = $(wildcard source/*.cpp) \
+	$(wildcard source/sharp/*.cpp) \
 	$(ARDUINO)/libraries/Bluefruit52Lib/src/BLEAdvertising.cpp \
 	$(ARDUINO)/libraries/Bluefruit52Lib/src/BLECentral.cpp \
 	$(ARDUINO)/libraries/Bluefruit52Lib/src/BLECharacteristic.cpp \
@@ -91,7 +92,8 @@ INCLUDES = -I$(ARDUINO)/libraries/Bluefruit52Lib/src \
 	-I$(ARDUINO)/cores/nRF5/freertos/Source/include \
 	-I$(ARDUINO)/cores/nRF5/freertos/portable/CMSIS/nrf52 \
 	-I$(ARDUINO)/cores/nRF5/freertos/portable/GCC/nrf52 \
-	-I$(ARDUINO)/variants/feather_nrf52832
+	-I$(ARDUINO)/variants/feather_nrf52832 \
+	-Isource/sharp
 
 all: $(OUTELF) $(OUTHEX) $(OUTDFU)
 

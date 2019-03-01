@@ -14,6 +14,8 @@
 
 #include <bluefruit.h>
 
+#include "driverSharp.h"
+
 BLEUart bleuart;
 
 // Function prototypes for packetparser.cpp
@@ -31,8 +33,7 @@ void setup(void)
   Serial.begin(115200);
   while ( !Serial ) delay(10);   // for nrf52840 with native usb
 
-  Serial.println(F("Adafruit Bluefruit52 Controller App Example"));
-  Serial.println(F("-------------------------------------------"));
+  Serial.println(F("Initializing..."));
 
   Bluefruit.begin();
   // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
@@ -45,9 +46,9 @@ void setup(void)
   // Set up and start advertising
   startAdv();
 
-  Serial.println(F("Please use Adafruit Bluefruit LE app to connect in Controller mode"));
-  Serial.println(F("Then activate/use the sensors, color picker, game controller, etc!"));
-  Serial.println();  
+  Serial.println(F("Ready."));
+
+  sharpInit();
 }
 
 void startAdv(void)
@@ -85,6 +86,8 @@ void startAdv(void)
 /**************************************************************************/
 void loop(void)
 {
+  sharpRefresh(300);
+
   // Wait for new data to arrive
   uint8_t len = readPacket(&bleuart, 500);
   if (len == 0) return;
