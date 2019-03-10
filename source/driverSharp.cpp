@@ -1,34 +1,42 @@
-#include "sharp/Adafruit_SharpMem.h"
+#include "driverSharp.h"
+#include "rtc.hpp"
 
-#define SHARP_SCK  12
-#define SHARP_MOSI 13
-#define SHARP_SS   6
+constexpr unsigned int SHARP_SCK = 12;
+constexpr unsigned int SHARP_MOSI = 13;
+constexpr unsigned int SHARP_SS = 14;
 
-Adafruit_SharpMem display(SHARP_SCK, SHARP_MOSI, SHARP_SS, 144, 168);
+Adafruit_SharpMem Sharp::display(SHARP_SCK, SHARP_MOSI, SHARP_SS, 144, 168);
+TaskHandle_t Sharp::taskHandle;
+bool Sharp::holdRendering = false;
 
 #define BLACK 0
 #define WHITE 1
 
-static TaskHandle_t sharpHandle;
-void sharpTask(void *arg);
-
-void sharpInit(void)
+void Sharp::begin(void)
 {
 	display.begin();
 	display.clearDisplay();
 	display.setTextSize(3);
-	display.setTextColor(BLACK);
-	display.setCursor(0, 0);
-	display.println("Hello!");
+	display.setTextColor(BLACK, WHITE);
 
-	xTaskCreate(sharpTask, "sharp", 512, nullptr, TASK_PRIO_LOW, &sharpHandle);
+	xTaskCreate(updateTask, "sharp", 512, nullptr, TASK_PRIO_LOW,
+		&taskHandle);
 }
 
-void sharpTask([[maybe_unused]] void *arg)
+void Sharp::updateTask([[maybe_unused]] void *arg)
 {
+	static auto old = RTC::ticks();
 	while (1) {
-		display.refresh();
-		delay(500);
+		do {
+			delay(300);
+		} while (holdRendering);
+
+		if (auto t = RTC::ticks(); t != old) {
+			old = t;
+			display.setCursor(0, 60);
+			display.printf("%2d:%02d", t / 60, t % 60);
+			display.refresh();
+		}
 	}
 }
 

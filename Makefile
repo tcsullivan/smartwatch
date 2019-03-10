@@ -37,7 +37,9 @@ CSRC = $(wildcard $(ARDUINO)/cores/nRF5/freertos/Source/*.c) \
 	$(ARDUINO)/cores/nRF5/wiring_digital.c \
 	$(ARDUINO)/libraries/FileSystem/src/littlefs/lfs.c \
 	$(ARDUINO)/libraries/FileSystem/src/littlefs/lfs_util.c \
-	$(ARDUINO)/libraries/Bluefruit52Lib/src/utility/bootloader_util.c
+	$(ARDUINO)/libraries/Bluefruit52Lib/src/utility/bootloader_util.c \
+	drivers_nrf/nrf_drv_common.c \
+	drivers_nrf/rtc/nrf_drv_rtc.c
 
 CXXSRC = $(wildcard source/*.cpp) \
 	$(wildcard source/sharp/*.cpp) \
@@ -93,7 +95,8 @@ INCLUDES = -I$(ARDUINO)/libraries/Bluefruit52Lib/src \
 	-I$(ARDUINO)/cores/nRF5/freertos/portable/CMSIS/nrf52 \
 	-I$(ARDUINO)/cores/nRF5/freertos/portable/GCC/nrf52 \
 	-I$(ARDUINO)/variants/feather_nrf52832 \
-	-Isource/sharp
+	-Isource/sharp \
+	-Idrivers_nrf
 
 all: $(OUTELF) $(OUTHEX) $(OUTDFU)
 
