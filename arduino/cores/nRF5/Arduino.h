@@ -86,6 +86,7 @@ uint32_t setLoopStacksize(void);
 #include "wiring_shift.h"
 #include "WInterrupts.h"
 
+#ifndef __cplusplus
 // undefine stdlib's abs if encountered
 #ifdef abs
 #undef abs
@@ -94,6 +95,8 @@ uint32_t setLoopStacksize(void);
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
 #define abs(x) ((x)>0?(x):-(x))
+#endif // __cplusplus
+
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 #define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
 #define radians(deg) ((deg)*DEG_TO_RAD)

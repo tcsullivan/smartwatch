@@ -52,17 +52,8 @@
 #define __swap32(x)    __REV(x)                   ///< built-in function to swap Endian of 32-bit number
 #define __swap16(u16)  ((uint16_t) __REV16(u16))  ///< built-in function to swap Endian of 16-bit number
 
-#ifndef __cplusplus
-#ifndef max
-#define max(a, b) ((a) > (b) ? (a) : (b))
-#endif // max
-#ifndef min
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#endif // min
-#endif // __cplusplus
-
-#define maxof(a,b) max(a, b)
-#define minof(a,b) min(a, b)
+#define maxof(a, b) ((a) > (b) ? (a) : (b))
+#define minof(a, b) ((a) < (b) ? (a) : (b))
 
 /*------------------------------------------------------------------*/
 /* Count number of arguments of __VA_ARGS__

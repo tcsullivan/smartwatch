@@ -56,7 +56,7 @@
  * Each field has an 1-byte preceding length
  *------------------------------------------------------------------*/
 #define SVC_CONTEXT_FLAG      (BLE_GATTS_SYS_ATTR_FLAG_SYS_SRVCS | BLE_GATTS_SYS_ATTR_FLAG_USR_SRVCS)
-#define BOND_FNAME_LEN        max(sizeof(BOND_FNAME_PRPH), sizeof(BOND_FNAME_CNTR))
+#define BOND_FNAME_LEN        std::max(sizeof(BOND_FNAME_PRPH), sizeof(BOND_FNAME_CNTR))
 
 static void get_fname (char* fname, uint8_t role, uint16_t ediv)
 {

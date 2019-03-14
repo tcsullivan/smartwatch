@@ -2,7 +2,7 @@
 
 #include <bluefruit.h>
 
-#include "driverSharp.h"
+#include "sharp.hpp"
 #include "rtc.hpp"
 
 BLEUart bleuart;
@@ -45,6 +45,7 @@ void setup(void)
 	Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds  
 
 	Serial.println(F("Ready."));
+	Sharp::setScreen(RTC::showTime);
 }
 
 void loop(void)
@@ -66,7 +67,7 @@ void handlePacket(void)
 
 	switch (buf[0]) {
 	case 'L':
-		Sharp::setMessage(buf + 1);
+		RTC::setMessage(buf + 1);
 		break;
 	case 'T':
 		Serial.println("Setting time!");

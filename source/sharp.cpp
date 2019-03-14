@@ -1,4 +1,4 @@
-#include "driverSharp.h"
+#include "sharp.hpp"
 #include "rtc.hpp"
 
 constexpr unsigned int SHARP_SCK = 12;
@@ -8,7 +8,7 @@ constexpr unsigned int SHARP_SS = 14;
 Adafruit_SharpMem Sharp::display(SHARP_SCK, SHARP_MOSI, SHARP_SS, 144, 168);
 TaskHandle_t Sharp::taskHandle;
 bool Sharp::holdRendering = false;
-char Sharp::message[16] = "";
+RenderFunc Sharp::currentScreen;
 
 #define BLACK 0
 #define WHITE 1
@@ -32,17 +32,9 @@ void Sharp::updateTask([[maybe_unused]] void *arg)
 			delay(300);
 		} while (holdRendering);
 
-		if (auto t = RTC::ticks(); t != old) {
-			old = t;
-			display.setCursor(0, 10);
-			display.printf("%2d:%02d:%02d", t / 3600, (t % 3600) /
-				60, t % 60);
-			if (*message != '\0') {
-				display.setCursor(0, 100);
-				display.printf("%-16s", message);
-			}
-			display.refresh();
-		}
+		if (currentScreen)
+			currentScreen(display);
+		display.refresh();
 	}
 }
 
