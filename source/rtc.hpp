@@ -12,6 +12,10 @@ public:
 		return rtcCount;
 	}
 
+	inline static void setTicks(unsigned int t) {
+		rtcCount = t;
+	}
+
 private:
 	static void handler(nrf_drv_rtc_int_type_t type);
 };

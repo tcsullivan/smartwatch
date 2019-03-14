@@ -5,6 +5,7 @@ private:
 	static Adafruit_SharpMem display;
 	static TaskHandle_t taskHandle;
 	static bool holdRendering;
+	static char message[16];
 
 public:
 	static void begin(void);
@@ -15,6 +16,10 @@ public:
 
 	inline static void unpause(void) {
 		holdRendering = false;
+	}
+
+	inline static void setMessage(const char *s) {
+		strncpy(message, s, 16);
 	}
 
 private:

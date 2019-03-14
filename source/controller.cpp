@@ -7,6 +7,8 @@
 
 BLEUart bleuart;
 
+void handlePacket(void);
+
 void app_error_handler_bare([[maybe_unused]] uint32_t error_code)
 {
     Serial.println("Received an error");
@@ -48,7 +50,30 @@ void setup(void)
 void loop(void)
 {
 	if (bleuart.available())
-		Serial.print((char)bleuart.read());
+		handlePacket();
 
 	delay(10);
 }
+
+void handlePacket(void)
+{
+	char buf[64];
+	char *p = buf;
+	do {
+		*p++ = bleuart.read();
+	} while (bleuart.available());
+	*p = '\0';
+
+	switch (buf[0]) {
+	case 'L':
+		Sharp::setMessage(buf + 1);
+		break;
+	case 'T':
+		Serial.println("Setting time!");
+		RTC::setTicks(std::atoi(buf + 1) * 60);
+		break;
+	default:
+		break;
+	}
+}
+
