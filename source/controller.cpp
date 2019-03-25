@@ -2,8 +2,9 @@
 
 #include <bluefruit.h>
 
-#include "sharp.hpp"
 #include "rtc.hpp"
+#include "sharp.hpp"
+#include "widget.hpp"
 
 BLEUart bleuart;
 
@@ -45,7 +46,8 @@ void setup(void)
 	Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds  
 
 	Serial.println(F("Ready."));
-	Sharp::setScreen(RTC::showTime);
+	Sharp::addWidget<TimeWidget>();
+	Sharp::addWidget<NotificationWidget>("Welcome to smartwatch");
 }
 
 void loop(void)
@@ -59,18 +61,17 @@ void loop(void)
 void handlePacket(void)
 {
 	char buf[64];
-	char *p = buf;
-	do {
-		*p++ = bleuart.read();
-	} while (bleuart.available());
-	*p = '\0';
+	unsigned int i;
+	for (i = 0; bleuart.available() && i < 63; i++)
+		buf[i] = bleuart.read();
+	buf[i] = '\0';
 
 	switch (buf[0]) {
 	case 'L':
-		RTC::setMessage(buf + 1);
+		//RTC::setMessage(buf + 1);
 		break;
 	case 'T':
-		Serial.println("Setting time!");
+		Sharp::addWidget<NotificationWidget>("Time updated");
 		RTC::setTicks(std::atoi(buf + 1) * 60);
 		break;
 	default:

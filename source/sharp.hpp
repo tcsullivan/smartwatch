@@ -2,33 +2,25 @@
 #define SHARP_HPP_
 
 #include "sharp/Adafruit_SharpMem.h"
+#include "widget.hpp"
 
-#include <functional>
+#include <vector>
 
-using RenderFunc = std::function<void(Adafruit_GFX&)>;
-using Display = Adafruit_GFX;
+#define BLACK 0
+#define WHITE 1
 
 class Sharp {
 private:
 	static Adafruit_SharpMem display;
 	static TaskHandle_t taskHandle;
-	static bool holdRendering;
 
-	static RenderFunc currentScreen;
-
+	static std::vector<Widget *> widgets;
 public:
 	static void begin(void);
 
-	inline static void pause(void) {
-		holdRendering = true;
-	}
-
-	inline static void unpause(void) {
-		holdRendering = false;
-	}
-
-	inline static void setScreen(const RenderFunc& rf) {
-		currentScreen = rf;
+	template<class T, typename... Args>
+	inline static void addWidget(Args... args) {
+		widgets.emplace_back(new T(args...));
 	}
 
 private:

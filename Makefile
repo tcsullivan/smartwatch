@@ -116,6 +116,10 @@ $(OUTDFU): $(OUTHEX)
 	@$(NRFUTIL) dfu genpkg --dev-type 0x0052 --application $(OUTHEX) \
 		$(OUTDFU)
 
+cleancpp:
+	@echo "  CLEAN"
+	@rm -f $(OBJ) $(OUTELF) $(OUTHEX) $(OUTDFU)
+
 clean:
 	@echo "  CLEAN"
 	@rm -f $(OBJ) $(OUTELF) $(OUTHEX) $(OUTDFU)
