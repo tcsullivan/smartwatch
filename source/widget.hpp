@@ -3,6 +3,7 @@
 
 class Adafruit_GFX;
 
+#include <bluefruit.h>
 #include <cstring>
 
 class Widget {
@@ -16,7 +17,8 @@ public:
 		return height;
 	}
 
-	virtual void render(Adafruit_GFX& display, unsigned int ypos) = 0;
+	virtual void render(Adafruit_GFX& display, int ypos) = 0;
+	virtual bool onPress(void) = 0;
 
 protected:
 	inline void setHeight(unsigned int _height) {
@@ -32,7 +34,10 @@ public:
 	constexpr TimeWidget(void)
 		: Widget(30), prevTicks(0) {}
 
-	void render(Adafruit_GFX& display, unsigned int ypos) final;
+	void render(Adafruit_GFX& display, int ypos) final;
+	bool onPress(void) final {
+		return false;
+	}
 };
 
 class NotificationWidget : public Widget {
@@ -49,6 +54,10 @@ public:
 		setHeight(16 * (i / 12 + 1));
 	}
 
-	void render(Adafruit_GFX& display, unsigned int ypos) final;
+	void render(Adafruit_GFX& display, int ypos) final;
+	bool onPress(void) final {
+		return true;
+	}
 };
+
 #endif // WIDGET_HPP_

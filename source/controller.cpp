@@ -48,12 +48,47 @@ void setup(void)
 	Serial.println(F("Ready."));
 	Sharp::addWidget<TimeWidget>();
 	Sharp::addWidget<NotificationWidget>("Welcome to smartwatch");
+	Sharp::addWidget<NotificationWidget>("Hi");
+	Sharp::addWidget<NotificationWidget>("Once upon a time, there lived an old man. His name was Gerg.");
+	Sharp::addWidget<NotificationWidget>("NOTICE: Play more games");
+	Sharp::addWidget<NotificationWidget>("2 new messages");
+	Sharp::addWidget<NotificationWidget>("you have mail");
+	Sharp::addWidget<NotificationWidget>("GGGGGGGGGGGGGGGGGGGGGGG");
+	Sharp::addWidget<NotificationWidget>("ABCDEFGHIJKLMNOPQRSTUZWXYZ");
 }
 
 void loop(void)
 {
 	if (bleuart.available())
 		handlePacket();
+
+	static int last = 0;
+	static bool scrolled = false;
+	int val = analogRead(A5);
+	if (val >= 10) {
+		if (last == 0) {
+			scrolled = false;
+			last = val;
+		}
+
+		auto diff = val - last;
+		if (diff > 50) {
+			Sharp::setScrollVelocity(1);
+			scrolled = true;
+		} else if (diff < -50) {
+			Sharp::setScrollVelocity(-1);
+			scrolled = true;
+		} else {
+			Sharp::setScrollVelocity(0);
+		}
+	} else {
+		if (last != 0 && !scrolled) {
+			int ypos = last / 70 * (SHARP_HEIGHT / 10);
+			Sharp::sendInput(ypos);
+		}
+		last = 0;
+		Sharp::setScrollVelocity(0);
+	}
 
 	delay(10);
 }

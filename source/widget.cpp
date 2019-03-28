@@ -1,7 +1,7 @@
 #include "rtc.hpp"
 #include "widget.hpp"
 
-void TimeWidget::render(Adafruit_GFX& display, unsigned int ypos) 
+void TimeWidget::render(Adafruit_GFX& display, int ypos) 
 {
 	if (auto t = RTC::ticks(); t != prevTicks) {
 		prevTicks = t;
@@ -12,7 +12,7 @@ void TimeWidget::render(Adafruit_GFX& display, unsigned int ypos)
 	}
 }
 
-void NotificationWidget::render(Adafruit_GFX& display, unsigned int ypos) 
+void NotificationWidget::render(Adafruit_GFX& display, int ypos) 
 {
 	display.setTextSize(2);
 	display.setCursor(0, ypos);
