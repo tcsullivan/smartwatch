@@ -22,6 +22,7 @@
 
 #include "rtc.hpp"
 #include "sharp.hpp"
+#include "vibrate.hpp"
 #include "widget.hpp"
 
 BLEUart bleuart;
@@ -40,8 +41,7 @@ void setup(void)
 	while (!Serial)
 		delay(10);
 
-	Serial.println(F("Initializing..."));
-
+	Vibrate::begin();
 	RTC::begin();
 	Sharp::begin();
 
@@ -63,16 +63,13 @@ void setup(void)
 	Bluefruit.Advertising.setFastTimeout(30);      // number of seconds in fast mode
 	Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds  
 
-	Serial.println(F("Ready."));
 	Sharp::addWidget<TimeWidget>();
 	Sharp::addWidget<NotificationWidget>("Welcome to smartwatch");
-	Sharp::addWidget<NotificationWidget>("Hi");
-	Sharp::addWidget<NotificationWidget>("Once upon a time, there lived an old man. His name was Gerg.");
-	Sharp::addWidget<NotificationWidget>("NOTICE: Play more games");
-	Sharp::addWidget<NotificationWidget>("2 new messages");
-	Sharp::addWidget<NotificationWidget>("you have mail");
-	Sharp::addWidget<NotificationWidget>("GGGGGGGGGGGGGGGGGGGGGGG");
-	Sharp::addWidget<NotificationWidget>("ABCDEFGHIJKLMNOPQRSTUZWXYZ");
+}
+
+static int touchToCoord(int val)
+{
+	return val / 70 * (SHARP_HEIGHT / 10);
 }
 
 void loop(void)
@@ -90,22 +87,15 @@ void loop(void)
 		}
 
 		auto diff = val - last;
-		if (diff > 50) {
-			Sharp::setScrollVelocity(1);
+		if (std::abs(diff) > 50) {
+			Sharp::setScroll(touchToCoord(diff));
 			scrolled = true;
-		} else if (diff < -50) {
-			Sharp::setScrollVelocity(-1);
-			scrolled = true;
-		} else {
-			Sharp::setScrollVelocity(0);
-		}
+		} 
 	} else {
-		if (last != 0 && !scrolled) {
-			int ypos = last / 70 * (SHARP_HEIGHT / 10);
-			Sharp::sendInput(ypos);
-		}
+		if (last != 0 && !scrolled)
+			Sharp::sendInput(touchToCoord(last));
 		last = 0;
-		Sharp::setScrollVelocity(0);
+		Sharp::setScroll();
 	}
 
 	delay(10);
@@ -121,9 +111,11 @@ void handlePacket(void)
 
 	switch (buf[0]) {
 	case 'L':
-		//RTC::setMessage(buf + 1);
+		Vibrate::pulse();
+		Sharp::addWidget<NotificationWidget>(buf + 1);
 		break;
 	case 'T':
+		Vibrate::pulse();
 		Sharp::addWidget<NotificationWidget>("Time updated");
 		RTC::setTicks(std::atoi(buf + 1) * 60);
 		break;

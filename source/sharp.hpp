@@ -40,7 +40,6 @@ private:
 	static std::vector<Widget *> widgets;
 
 	static int topY;
-	static int scrollVelocity;
 
 public:
 	static void begin(void);
@@ -50,8 +49,13 @@ public:
 		widgets.emplace_back(new T(args...));
 	}
 
-	inline static void setScrollVelocity(int vel) {
-		scrollVelocity = vel;
+	inline static void setScroll(int scr = 0) {
+		static int oldTopY = 0;
+		if (scr == 0) {
+			oldTopY = topY;
+		} else {
+			topY = minof(0, oldTopY + scr);
+		}
 	}
 
 	static void sendInput(int ypos);

@@ -31,7 +31,6 @@ TaskHandle_t Sharp::taskHandle;
 std::vector<Widget *> Sharp::widgets;
 
 int Sharp::topY = 0;
-int Sharp::scrollVelocity = 0;
 
 void Sharp::begin(void)
 {
@@ -70,31 +69,26 @@ void Sharp::sendInput(int ypos)
 
 void Sharp::updateTask([[maybe_unused]] void *arg)
 {
-	static unsigned int counter = 0;
+	static int oldTopY = 0;
+
 	while (1) {
-		if (counter++ == 3) {
-			counter = 0;
-
-			auto y = topY;
-			for (auto& w : widgets) {
-				w->render(display, y);
-				y += w->getHeight();
-    				display.drawFastHLine(0, y + 1, SHARP_WIDTH, BLACK);
-				y += 3;
-				if (y >= SHARP_HEIGHT)
-					break;
-			}
-
-			display.refresh();
-		} else {
-			topY += scrollVelocity * 20;
-			if (scrollVelocity != 0)
-				display.clearDisplay();
-			if (topY > 0)
-				topY = 0;
+		if (oldTopY != topY) {
+			oldTopY = topY;
+			display.clearDisplay();
 		}
 
-		delay(50);
+		auto y = topY;
+		for (auto& w : widgets) {
+			w->render(display, y);
+			y += w->getHeight();
+    			display.drawFastHLine(0, y + 1, SHARP_WIDTH, BLACK);
+			y += 3;
+			if (y >= SHARP_HEIGHT)
+				break;
+		}
+
+		display.refresh();
+		delay(150);
 	}
 }
 
