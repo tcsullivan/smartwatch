@@ -14,7 +14,7 @@ MCUFLAGS = -mcpu=cortex-m4 -mthumb -mabi=aapcs \
 
 CFLAGS = $(MCUFLAGS) --std=gnu99
 CXXFLAGS = $(MCUFLAGS) --std=c++17 -fno-builtin -fno-exceptions \
-	-fno-strict-aliasing
+	-fno-strict-aliasing 
 
 SFLAGS = $(MCUFLAGS) -x assembler-with-cpp \
 	-DCONFIG_GPIO_AS_PINRESET \
@@ -35,6 +35,7 @@ CSRC = $(wildcard $(ARDUINO)/cores/nRF5/freertos/Source/*.c) \
 	$(ARDUINO)/cores/nRF5/nordic/nrfx/mdk/system_nrf52.c \
 	$(ARDUINO)/cores/nRF5/wiring.c \
 	$(ARDUINO)/cores/nRF5/wiring_digital.c \
+	$(ARDUINO)/cores/nRF5/wiring_analog_nRF52.c \
 	$(ARDUINO)/libraries/FileSystem/src/littlefs/lfs.c \
 	$(ARDUINO)/libraries/FileSystem/src/littlefs/lfs_util.c \
 	$(ARDUINO)/libraries/Bluefruit52Lib/src/utility/bootloader_util.c \

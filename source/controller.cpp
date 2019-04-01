@@ -1,9 +1,28 @@
-// sharp takes < ~0.05uA
+/**
+ * @file controller.cpp
+ * @brief The main smartwatch code.
+ *
+ * Copyright (C) 2019 Clyne Sullivan
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include <bluefruit.h>
 
 #include "rtc.hpp"
 #include "sharp.hpp"
+#include "vibrate.hpp"
 #include "widget.hpp"
 
 BLEUart bleuart;
@@ -22,8 +41,7 @@ void setup(void)
 	while (!Serial)
 		delay(10);
 
-	Serial.println(F("Initializing..."));
-
+	Vibrate::begin();
 	RTC::begin();
 	Sharp::begin();
 
@@ -45,15 +63,40 @@ void setup(void)
 	Bluefruit.Advertising.setFastTimeout(30);      // number of seconds in fast mode
 	Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds  
 
-	Serial.println(F("Ready."));
 	Sharp::addWidget<TimeWidget>();
 	Sharp::addWidget<NotificationWidget>("Welcome to smartwatch");
+}
+
+static int touchToCoord(int val)
+{
+	return val / 70 * (SHARP_HEIGHT / 10);
 }
 
 void loop(void)
 {
 	if (bleuart.available())
 		handlePacket();
+
+	static int last = 0;
+	static bool scrolled = false;
+	int val = analogRead(A5);
+	if (val >= 10) {
+		if (last == 0) {
+			scrolled = false;
+			last = val;
+		}
+
+		auto diff = val - last;
+		if (std::abs(diff) > 50) {
+			Sharp::setScroll(touchToCoord(diff));
+			scrolled = true;
+		} 
+	} else {
+		if (last != 0 && !scrolled)
+			Sharp::sendInput(touchToCoord(last));
+		last = 0;
+		Sharp::setScroll();
+	}
 
 	delay(10);
 }
@@ -68,9 +111,11 @@ void handlePacket(void)
 
 	switch (buf[0]) {
 	case 'L':
-		//RTC::setMessage(buf + 1);
+		Vibrate::pulse();
+		Sharp::addWidget<NotificationWidget>(buf + 1);
 		break;
 	case 'T':
+		Vibrate::pulse();
 		Sharp::addWidget<NotificationWidget>("Time updated");
 		RTC::setTicks(std::atoi(buf + 1) * 60);
 		break;
