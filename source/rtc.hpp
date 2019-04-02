@@ -22,12 +22,14 @@
 #define RTC_HPP_
 
 #include <rtc/nrf_drv_rtc.h>
+#include <stdint.h>
+
 #include "sharp.hpp"
 
 class RTC {
 private:
 	static nrf_drv_rtc_t rtc;
-	static unsigned int rtcCount;
+	static uint32_t rtcCount;
 
 public:
 	static void begin(void);
@@ -39,6 +41,8 @@ public:
 	inline static void setTicks(unsigned int t) {
 		rtcCount = t;
 	}
+
+	static const char *getDate(char *buf);
 
 private:
 	static void handler(nrf_drv_rtc_int_type_t type);

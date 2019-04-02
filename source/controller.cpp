@@ -92,13 +92,21 @@ void loop(void)
 			scrolled = true;
 		} 
 	} else {
-		if (last != 0 && !scrolled)
+		if (last != 0 && !scrolled) {
 			Sharp::sendInput(touchToCoord(last));
+			delay(100);
+		}
 		last = 0;
 		Sharp::setScroll();
 	}
 
 	delay(10);
+}
+
+static void addNewNote(const char *buf)
+{
+	unsigned int count = (buf[1] - '0') * 10 + (buf[2] - '0');
+	Sharp::addWidget<NoteWidget>(buf + 3, count);
 }
 
 void handlePacket(void)
@@ -119,6 +127,9 @@ void handlePacket(void)
 		Sharp::addWidget<NotificationWidget>("Time updated");
 		RTC::setTicks(std::atoi(buf + 1) * 60);
 		break;
+	case 'N':
+		Vibrate::pulse();
+		addNewNote(buf);
 	default:
 		break;
 	}

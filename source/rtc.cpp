@@ -22,7 +22,7 @@
 #include <bluefruit.h>
 
 nrf_drv_rtc_t RTC::rtc = NRF_DRV_RTC_INSTANCE(2);
-unsigned int RTC::rtcCount = 0;
+uint32_t RTC::rtcCount = 0;
 
 void RTC::begin(void)
 {
@@ -39,13 +39,19 @@ void RTC::begin(void)
 	nrf_drv_rtc_enable(&rtc);
 }
 
+const char *RTC::getDate(char *buf)
+{
+	
+}
+
 void RTC::handler([[maybe_unused]] nrf_drv_rtc_int_type_t int_type)
 {
   static unsigned char counter = 0;
   if (int_type == NRF_DRV_RTC_INT_TICK) {
           if (++counter == 8) {
         	  counter = 0;
-        	  rtcCount++;
+		  if (++rtcCount == 86400)
+			  rtcCount = 0;
           }
   }
 }

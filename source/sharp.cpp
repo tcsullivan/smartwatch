@@ -30,7 +30,11 @@ Adafruit_SharpMem Sharp::display(SHARP_SCK, SHARP_MOSI, SHARP_SS, SHARP_WIDTH,
 TaskHandle_t Sharp::taskHandle;
 std::vector<Widget *> Sharp::widgets;
 
+int Sharp::fullscreenWidget = -1;
 int Sharp::topY = 0;
+int Sharp::lowestY = 0;
+
+static int oldTopY = 0;
 
 void Sharp::begin(void)
 {
@@ -53,10 +57,21 @@ void Sharp::sendInput(int ypos)
 	for (unsigned int i = 0; i < widgets.size(); i++) {
 		y += widgets[i]->getHeight();
 		if (ypos < y) {
-			if (widgets[i]->onPress()) {
+			switch (widgets[i]->onPress()) {
+			case PressAction::Destroy:
 				delete widgets[i];
 				widgets.erase(widgets.begin() + i);
 				display.clearDisplay();
+				break;
+			case PressAction::Fullscreen:
+				if (fullscreenWidget == -1)
+					fullscreenWidget = i;
+				else
+					fullscreenWidget = -1;
+				oldTopY = 1;
+				break;
+			default:
+				break;
 			}
 			break;
 		}
@@ -69,22 +84,26 @@ void Sharp::sendInput(int ypos)
 
 void Sharp::updateTask([[maybe_unused]] void *arg)
 {
-	static int oldTopY = 0;
-
 	while (1) {
 		if (oldTopY != topY) {
 			oldTopY = topY;
 			display.clearDisplay();
 		}
 
-		auto y = topY;
-		for (auto& w : widgets) {
-			w->render(display, y);
-			y += w->getHeight();
-    			display.drawFastHLine(0, y + 1, SHARP_WIDTH, BLACK);
-			y += 3;
-			if (y >= SHARP_HEIGHT)
-				break;
+		if (fullscreenWidget == -1) {
+			auto y = topY;
+			for (auto& w : widgets) {
+				w->render(display, y);
+				y += w->getHeight();
+    				display.drawFastHLine(0, y + 1, SHARP_WIDTH,
+					BLACK);
+				y += 3;
+				if (y >= SHARP_HEIGHT)
+					break;
+			}
+		} else {
+			widgets[fullscreenWidget]->renderFullscreen(display,
+				topY);
 		}
 
 		display.refresh();

@@ -26,6 +26,12 @@ class Adafruit_GFX;
 #include <bluefruit.h>
 #include <cstring>
 
+enum class PressAction {
+	Nothing = 0,
+	Destroy,
+	Fullscreen
+};
+
 class Widget {
 private:
 	unsigned int height;
@@ -37,8 +43,10 @@ public:
 		return height;
 	}
 
+	virtual void renderFullscreen([[maybe_unused]] Adafruit_GFX& display,
+		[[maybe_unused]] int ypos) {}
 	virtual void render(Adafruit_GFX& display, int ypos) = 0;
-	virtual bool onPress(void) = 0;
+	virtual PressAction onPress(void) = 0;
 
 protected:
 	inline void setHeight(unsigned int _height) {
@@ -55,9 +63,8 @@ public:
 		: Widget(30), prevTicks(0) {}
 
 	void render(Adafruit_GFX& display, int ypos) final;
-	bool onPress(void) final {
-		return false;
-	}
+	void renderFullscreen(Adafruit_GFX& display, int ypos) final;
+	PressAction onPress(void) final;
 };
 
 class NotificationWidget : public Widget {
@@ -75,9 +82,29 @@ public:
 	}
 
 	void render(Adafruit_GFX& display, int ypos) final;
-	bool onPress(void) final {
-		return true;
+	PressAction onPress(void) final {
+		return PressAction::Destroy;
 	}
+};
+
+class NoteWidget : public Widget {
+private:
+	char *text;
+
+public:
+	NoteWidget(const char *t, unsigned int size)
+		: Widget(24) {
+		text = new char[size];
+		for (unsigned int i = 0; i < size; i++)
+			text[i] = t[i];
+	}
+	~NoteWidget(void) {
+		delete[] text;
+	}
+
+	void render(Adafruit_GFX& display, int ypos) final;
+	void renderFullscreen(Adafruit_GFX& display, int ypos) final;
+	PressAction onPress(void) final;
 };
 
 #endif // WIDGET_HPP_

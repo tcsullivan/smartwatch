@@ -21,15 +21,36 @@
 #include "rtc.hpp"
 #include "widget.hpp"
 
+PressAction TimeWidget::onPress(void)
+{
+	if (getHeight() == 30)
+		setHeight(SHARP_HEIGHT);
+	else
+		setHeight(30);
+
+	return PressAction::Fullscreen;
+}
+
 void TimeWidget::render(Adafruit_GFX& display, int ypos) 
 {
 	if (auto t = RTC::ticks(); t != prevTicks) {
 		prevTicks = t;
 		display.setTextSize(3);
 		display.setCursor(0, ypos + 4);
-		display.printf("%2d:%02d:%02d", t / 3600, (t % 3600) /
-			60, t % 60);
+		display.printf("%2d:%02d:%02d", t / 3600, (t % 3600) / 60,
+			t % 60);
 	}
+}
+
+void TimeWidget::renderFullscreen(Adafruit_GFX& display, int ypos)
+{
+	if (auto t = RTC::ticks(); t != prevTicks) {
+		prevTicks = t;
+		display.setTextSize(4);
+		display.setCursor(12, SHARP_HEIGHT / 3);
+		display.printf("%2d:%02d", t / 3600, (t % 3600) / 60);
+	}
+
 }
 
 void NotificationWidget::render(Adafruit_GFX& display, int ypos) 
@@ -38,3 +59,28 @@ void NotificationWidget::render(Adafruit_GFX& display, int ypos)
 	display.setCursor(0, ypos);
 	display.printf("%-36s", message);
 }
+
+void NoteWidget::render(Adafruit_GFX& display, int ypos)
+{
+	display.setTextSize(2);
+	display.setCursor(0, ypos);
+	display.printf("NOTE:\n%9s...", text);
+}
+
+void NoteWidget::renderFullscreen(Adafruit_GFX& display, int ypos)
+{
+	display.setTextSize(2);
+	display.setCursor(0, ypos);
+	display.print(text);
+}
+
+PressAction NoteWidget::onPress(void)
+{
+	if (getHeight() == 24)
+		setHeight(SHARP_HEIGHT);
+	else
+		setHeight(24);
+
+	return PressAction::Fullscreen;
+}
+

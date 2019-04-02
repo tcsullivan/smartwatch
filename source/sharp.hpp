@@ -38,8 +38,10 @@ private:
 	static TaskHandle_t taskHandle;
 
 	static std::vector<Widget *> widgets;
+	static int fullscreenWidget;
 
 	static int topY;
+	static int lowestY;
 
 public:
 	static void begin(void);
@@ -47,6 +49,11 @@ public:
 	template<class T, typename... Args>
 	inline static void addWidget(Args... args) {
 		widgets.emplace_back(new T(args...));
+		lowestY = 0;
+		for (unsigned int i = 0; i < widgets.size() - 1; i++)
+			lowestY -= widgets[i]->getHeight() + 3;
+		if (lowestY != 0)
+			lowestY++;
 	}
 
 	inline static void setScroll(int scr = 0) {
@@ -55,6 +62,7 @@ public:
 			oldTopY = topY;
 		} else {
 			topY = minof(0, oldTopY + scr);
+			topY = maxof(lowestY, topY);
 		}
 	}
 
